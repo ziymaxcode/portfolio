@@ -1316,7 +1316,7 @@ footer {
         <label class="form-label">message</label>
         <textarea class="form-input" placeholder="type your message here..." id="fmsg"></textarea>
       </div>
-      <button class="btn btn-primary" style="width:100%;justify-content:center;display:block;text-align:center;" onclick="sendMsg()">./send --execute</button>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;display:block;text-align:center;" onclick="sendMsg(event)">./send --execute</button>
     </div>
   </div>
 </section>
@@ -1552,14 +1552,42 @@ function copyEmail(){
 }
 
 /* ─── FORM SUBMIT ─── */
-function sendMsg(){
-  const name=document.getElementById('fname').value;
-  const email=document.getElementById('femail').value;
-  const msg=document.getElementById('fmsg').value;
-  if(!name||!email||!msg){ alert('Please fill all fields.'); return; }
-  const btn=event.target;
-  btn.textContent='./sending...';
-  setTimeout(()=>{ btn.textContent='./message_sent ✓'; btn.style.color='var(--green)'; btn.style.borderColor='var(--green)'; },1000);
+function sendMsg(event) {
+  event.preventDefault();
+
+  const name = document.getElementById('fname').value.trim();
+  const email = document.getElementById('femail').value.trim();
+  const msg = document.getElementById('fmsg').value.trim();
+
+  if (!name || !email || !msg) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  const btn = event.target;
+  btn.textContent = "./sending...";
+  btn.disabled = true;
+
+  emailjs.send("service_i0woa3u", "template_v29uieh", {
+    name: name,
+    email: email,
+    message: msg
+  })
+  .then(() => {
+    btn.textContent = "./message_sent ✓";
+    btn.style.color = "#00ffcc";
+    btn.style.borderColor = "#00ffcc";
+
+    document.getElementById('fname').value = "";
+    document.getElementById('femail').value = "";
+    document.getElementById('fmsg').value = "";
+  })
+  .catch((error) => {
+    console.error(error);
+    alert("Failed to send message ❌");
+    btn.textContent = "./send --execute";
+    btn.disabled = false;
+  });
 }
 
 /* ─── HAMBURGER MENU ─── */
@@ -1610,6 +1638,13 @@ document.addEventListener('keydown',e=>{
     document.addEventListener('keydown',function esc(e){ if(e.key==='Escape'){ div.remove(); document.removeEventListener('keydown',esc); }});
   }
 });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<script>
+  (function(){
+    emailjs.init("sNcFxuMylRaarOeq2");
+  })();
 </script>
 </body>
 </html>
